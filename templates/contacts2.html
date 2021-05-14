@@ -1,0 +1,39 @@
+{{define "contacts"}}
+
+{{template "header"}}
+
+<main class="px-3">
+  <h1>Email Form</h1>
+  <p class="lead">
+  <p>Lorem Ipsum is simply dummy text of
+    the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since
+    the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It
+    has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially
+    unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum
+    passages, and more recently with desktop publishing software like Aldus PageMaker including versions of
+    Lorem Ipsum.</p>
+  <a href="/" class="btn btn-lg btn-secondary fw-bold border-white bg-white">~qq~</a>
+  </p>
+  <form action="/contacts" method="POST" novalidate>
+    <div>
+      {{ with .Errors.Email }}
+      <p class="error">{{ . }}</p>
+      {{ end }}
+      <p><input type="email" name="email" id="title" placeholder="type your email" class="form-control" value="{{ .Email }}"></p>
+    </div>
+    <div>
+      {{ with .Errors.Content }}
+      <p class="error" >{{ . }}</p>
+      {{ end }}
+      <p><textarea  id="anons" cols="30" rows="10" class="form-control" placeholder="type your message" name="content">{{ .Content }}</textarea></p>
+    </div>
+    <div>
+      <button class="btn btn-warning">Send message</button>
+    </div>
+  </form>
+
+</main>
+
+{{template "footer"}}
+
+{{end}}

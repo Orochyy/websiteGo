@@ -1,0 +1,28 @@
+{{define "create"}}
+
+{{template "header"}}
+
+<main class="px-3">
+    <h1>Create  Forms</h1>
+    <p class="lead">
+    <p>Lorem Ipsum is simply dummy text of
+        the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since
+        the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It
+        has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially
+        unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum
+        passages, and more recently with desktop publishing software like Aldus PageMaker including versions of
+        Lorem Ipsum.</p>
+    <a href="/" class="btn btn-lg btn-secondary fw-bold border-white bg-white">~qq~</a>
+    </p>
+    <form action="/save_article" method="post">
+        <input type="text" name="title" id="title" placeholder="type name of article" class="form-control"><br>
+        <textarea name="anons" id="anons" cols="30" rows="10" class="form-control" placeholder="type anons article"></textarea><br>
+        <textarea name="full_text" id="full_text" cols="30" rows="10" class="form-control" placeholder="type text of the article"></textarea><br>
+        <button class="btn btn-warning">Add</button>
+    </form>
+
+</main>
+
+{{template "footer"}}
+
+{{end}}
