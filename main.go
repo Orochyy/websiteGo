@@ -5,6 +5,7 @@ import (
 	"fmt"
 	_ "github.com/go-sql-driver/mysql"
 	mux "github.com/gorilla/websocket"
+	"golang.org/x/crypto/bcrypt"
 	"html/template"
 	"log"
 	"net/http"
@@ -139,7 +140,7 @@ func show_post(w http.ResponseWriter, r *http.Request) {
 
 	t.ExecuteTemplate(w, "show", showPost)
 }
-func send(w http.ResponseWriter, r *http.Request)  {
+func send(w http.ResponseWriter, r *http.Request) {
 	// Step 1: Validate form
 	msg := &Message{
 		Email:   r.PostFormValue("email"),
@@ -181,19 +182,86 @@ func render(w http.ResponseWriter, filename string, data interface{}) {
 		http.Error(w, "Sorry, something went wrong", http.StatusInternalServerError)
 	}
 }
+func loginG(w http.ResponseWriter, r *http.Request) {
+	t, err := template.ParseFiles("templates/login.html", "templates/header.html", "templates/footer.html")
+	if err != nil {
+		fmt.Fprintf(w, err.Error())
+	}
 
+	t.ExecuteTemplate(w, "login", nil)
+}
+func signupG(w http.ResponseWriter, r *http.Request) {
+	t, err := template.ParseFiles("templates/signup.html", "templates/header.html", "templates/footer.html")
+	if err != nil {
+		fmt.Fprintf(w, err.Error())
+	}
 
+	t.ExecuteTemplate(w, "signup", nil)
+}
+func loginP(w http.ResponseWriter, r *http.Request) {
+
+	username := r.FormValue("username")
+	password := r.FormValue("password")
+
+	var databaseUsername string
+	var databasePassword string
+
+	err := db.QueryRow("SELECT username, password FROM users WHERE username=?", username).Scan(&databaseUsername, &databasePassword)
+
+	if err != nil {
+		http.Redirect(w, r, "/login", 301)
+		return
+	}
+
+	err = bcrypt.CompareHashAndPassword([]byte(databasePassword), []byte(password))
+	if err != nil {
+		http.Redirect(w, r, "/login", 301)
+		return
+	}
+
+	w.Write([]byte("Hello " + databaseUsername))
+}
+func signupP(w http.ResponseWriter, r *http.Request) {
+
+	username := r.FormValue("username")
+	password := r.FormValue("password")
+
+	var user string
+
+	err := db.QueryRow("SELECT username FROM users WHERE username=?", username).Scan(&user)
+
+	switch {
+	case err == sql.ErrNoRows:
+		hashedPassword, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
+		if err != nil {
+			http.Error(w, "Server error, unable to create your account.", 500)
+			return
+		}
+
+		_, err = db.Exec("INSERT INTO users(username, password) VALUES(?, ?)", username, hashedPassword)
+		if err != nil {
+			http.Error(w, "Server error, unable to create your account.", 500)
+			return
+		}
+
+		w.Write([]byte("User created!"))
+		return
+	case err != nil:
+		http.Error(w, "Server error, unable to create your account.", 500)
+		return
+	default:
+		http.Redirect(w, r, "/", 301)
+	}
+}
 
 func handleFunc() {
 	rtr := mux.NewRouter()
 	rtr.HandleFunc("/", index).Methods("GET")
 	rtr.HandleFunc("/create", create).Methods("GET")
+	rtr.HandleFunc("/login", loginG).Methods("GET")
+	rtr.HandleFunc("/signup", signupG).Methods("GET")
 	rtr.HandleFunc("/contacts", contacts).Methods("GET")
 	rtr.HandleFunc("/contacts", send).Methods("POST")
-	//rtr.HandleFunc("/signup", signup).Methods("GET")
-	//rtr.HandleFunc("/login", login).Methods("GET")
-	//rtr.HandleFunc("/signup", signupPage).Methods("POST")
-	//rtr.HandleFunc("/login", loginPage).Methods("POST")
 	rtr.HandleFunc("/confirmation", confirmation).Methods("GET")
 	rtr.HandleFunc("/save_article", save_article).Methods("POST")
 	rtr.HandleFunc("/post/{id:[0-9]+}", show_post).Methods("GET")
@@ -203,17 +271,14 @@ func handleFunc() {
 
 	//http.HandleFunc("/signup", signupPage)
 	//http.HandleFunc("/login", loginPage)
+	//rtr.HandleFunc("/login", loginG).Methods("GET")
+	//rtr.HandleFunc("/signup", signupG).Methods("GET")
 
-	//mux := pat.New()
-	//mux.Post("/contacts", http.HandlerFunc(send))
-	//mux.Get("/confirmation", http.HandlerFunc(confirmation))
-	//mux.Get("/contacts", http.HandlerFunc(contacts))
-	//
-	//log.Println("Listening...")
-	//err := http.ListenAndServe(":8080", mux)
-	//if err != nil {
-	//	log.Fatal(err)
-	//}
+	rtr.HandleFunc("/login", loginG).Methods("GET")
+	rtr.HandleFunc("/signup", signupG).Methods("GET")
+	//rtr.HandleFunc("/login", loginP).Methods("POST")
+	//rtr.HandleFunc("/signup", signupP).Methods("POST")
+
 }
 
 func main() {
