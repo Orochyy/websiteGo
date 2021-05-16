@@ -21,6 +21,15 @@ var showPost = Article{}
 var db *sql.DB
 var err error
 
+func connect() {
+	db, err := sql.Open("mysql", "root:root@tcp(127.0.0.1:3306)/golang")
+	if err != nil {
+		panic(err)
+	}
+
+	defer db.Close()
+
+}
 func index(w http.ResponseWriter, r *http.Request) {
 	t, err := template.ParseFiles("templates/index.html", "templates/header.html", "templates/footer.html")
 
@@ -182,53 +191,24 @@ func render(w http.ResponseWriter, filename string, data interface{}) {
 		http.Error(w, "Sorry, something went wrong", http.StatusInternalServerError)
 	}
 }
-func loginG(w http.ResponseWriter, r *http.Request) {
-	t, err := template.ParseFiles("templates/login.html", "templates/header.html", "templates/footer.html")
-	if err != nil {
-		fmt.Fprintf(w, err.Error())
-	}
-
-	t.ExecuteTemplate(w, "login", nil)
-}
-func signupG(w http.ResponseWriter, r *http.Request) {
-	t, err := template.ParseFiles("templates/signup.html", "templates/header.html", "templates/footer.html")
-	if err != nil {
-		fmt.Fprintf(w, err.Error())
-	}
-
-	t.ExecuteTemplate(w, "signup", nil)
-}
-func loginP(w http.ResponseWriter, r *http.Request) {
-
-	username := r.FormValue("username")
-	password := r.FormValue("password")
-
-	var databaseUsername string
-	var databasePassword string
-
-	err := db.QueryRow("SELECT username, password FROM users WHERE username=?", username).Scan(&databaseUsername, &databasePassword)
-
-	if err != nil {
-		http.Redirect(w, r, "/login", 301)
+func signupPage(w http.ResponseWriter, r *http.Request) {
+	if r.Method != "POST" {
+		http.ServeFile(w, r, "templates/signup.html")
 		return
 	}
-
-	err = bcrypt.CompareHashAndPassword([]byte(databasePassword), []byte(password))
+	db, err := sql.Open("mysql", "root:root@tcp(127.0.0.1:3306)/golang")
 	if err != nil {
-		http.Redirect(w, r, "/login", 301)
-		return
+		panic(err)
 	}
 
-	w.Write([]byte("Hello " + databaseUsername))
-}
-func signupP(w http.ResponseWriter, r *http.Request) {
+	defer db.Close()
 
 	username := r.FormValue("username")
 	password := r.FormValue("password")
 
 	var user string
 
-	err := db.QueryRow("SELECT username FROM users WHERE username=?", username).Scan(&user)
+	err = db.QueryRow("SELECT username FROM usersl WHERE username=?", username).Scan(&user)
 
 	switch {
 	case err == sql.ErrNoRows:
@@ -238,7 +218,7 @@ func signupP(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		_, err = db.Exec("INSERT INTO users(username, password) VALUES(?, ?)", username, hashedPassword)
+		_, err = db.Exec("INSERT INTO usersl(username, password) VALUES(?, ?)", username, hashedPassword)
 		if err != nil {
 			http.Error(w, "Server error, unable to create your account.", 500)
 			return
@@ -254,12 +234,48 @@ func signupP(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+func loginPage(w http.ResponseWriter, r *http.Request) {
+	if r.Method != "POST" {
+		http.ServeFile(w, r, "templates/login.html")
+		return
+	}
+
+	db, err := sql.Open("mysql", "root:root@tcp(127.0.0.1:3306)/golang")
+	if err != nil {
+		panic(err)
+	}
+
+	defer db.Close()
+
+	username := r.FormValue("username")
+	password := r.FormValue("password")
+
+	var databaseUsername string
+	var databasePassword string
+
+	err = db.QueryRow("SELECT username, password FROM usersl WHERE username=?", username).Scan(&databaseUsername, &databasePassword)
+
+	if err != nil {
+		http.Redirect(w, r, "/login", 301)
+		return
+	}
+
+	err = bcrypt.CompareHashAndPassword([]byte(databasePassword), []byte(password))
+	if err != nil {
+		http.Redirect(w, r, "/login", 301)
+		return
+	}
+
+	w.Write([]byte("Hello " + databaseUsername))
+
+}
+
 func handleFunc() {
+	http.HandleFunc("/signup", signupPage)
+	http.HandleFunc("/login", loginPage)
 	rtr := mux.NewRouter()
 	rtr.HandleFunc("/", index).Methods("GET")
 	rtr.HandleFunc("/create", create).Methods("GET")
-	rtr.HandleFunc("/login", loginG).Methods("GET")
-	rtr.HandleFunc("/signup", signupG).Methods("GET")
 	rtr.HandleFunc("/contacts", contacts).Methods("GET")
 	rtr.HandleFunc("/contacts", send).Methods("POST")
 	rtr.HandleFunc("/confirmation", confirmation).Methods("GET")
@@ -268,16 +284,6 @@ func handleFunc() {
 	http.Handle("/", rtr)
 	http.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir("./static/"))))
 	http.ListenAndServe(":8080", nil)
-
-	//http.HandleFunc("/signup", signupPage)
-	//http.HandleFunc("/login", loginPage)
-	//rtr.HandleFunc("/login", loginG).Methods("GET")
-	//rtr.HandleFunc("/signup", signupG).Methods("GET")
-
-	rtr.HandleFunc("/login", loginG).Methods("GET")
-	rtr.HandleFunc("/signup", signupG).Methods("GET")
-	//rtr.HandleFunc("/login", loginP).Methods("POST")
-	//rtr.HandleFunc("/signup", signupP).Methods("POST")
 
 }
 
