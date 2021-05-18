@@ -233,7 +233,6 @@ func signupPage(w http.ResponseWriter, r *http.Request) {
 		http.Redirect(w, r, "/", 301)
 	}
 }
-
 func loginPage(w http.ResponseWriter, r *http.Request) {
 	if r.Method != "POST" {
 		http.ServeFile(w, r, "templates/login.html")
@@ -256,15 +255,23 @@ func loginPage(w http.ResponseWriter, r *http.Request) {
 	err = db.QueryRow("SELECT username, password FROM usersl WHERE username=?", username).Scan(&databaseUsername, &databasePassword)
 
 	if err != nil {
-		http.Redirect(w, r, "/login", 301)
+		http.Redirect(w, r, "/", 301)
 		return
 	}
 
 	err = bcrypt.CompareHashAndPassword([]byte(databasePassword), []byte(password))
 	if err != nil {
-		http.Redirect(w, r, "/login", 301)
+		http.Redirect(w, r, "/", 301)
 		return
 	}
+
+	//t, err := template.ParseFiles("templates/indexU.html", "templates/headerU.html", "templates/footer.html")
+	//
+	//if err != nil {
+	//	fmt.Fprintf(w, err.Error())
+	//}
+	//
+	//t.ExecuteTemplate(w, "indexU", posts)
 
 	w.Write([]byte("Hello " + databaseUsername))
 
