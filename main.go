@@ -21,13 +21,17 @@ var showPost = Article{}
 var db *sql.DB
 var err error
 
-func connect() {
-	db, err := sql.Open("mysql", "root:root@tcp(127.0.0.1:3306)/golang")
-	if err != nil {
-		panic(err)
-	}
+func dbConn() (db *sql.DB) {
 
-	defer db.Close()
+	dbDriver := "mysql"
+	dbUser := "root"
+	dbPass := "root"
+	dbName := "golang"
+	db, err := sql.Open(dbDriver, dbUser+":"+dbPass+"@/"+dbName)
+	if err != nil {
+		panic(err.Error())
+	}
+	return db
 
 }
 func index(w http.ResponseWriter, r *http.Request) {
@@ -37,10 +41,7 @@ func index(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprintf(w, err.Error())
 	}
 
-	db, err := sql.Open("mysql", "root:root@tcp(127.0.0.1:3306)/golang")
-	if err != nil {
-		panic(err)
-	}
+	db := dbConn()
 
 	defer db.Close()
 
@@ -91,12 +92,7 @@ func save_article(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprintf(w, "Не всі поля заповнені")
 	} else {
 
-		db, err := sql.Open("mysql", "root:root@tcp(127.0.0.1:3306)/golang")
-		if err != nil {
-			panic(err)
-		}
-
-		defer db.Close()
+		db := dbConn()
 
 		//встановлення даних
 		insert, err := db.Query(fmt.Sprintf("INSERT  INTO `articles`(`title`, `anons`,`full_text`) VALUES ('%s', '%s','%s')", title, anons, full_text))
@@ -121,10 +117,7 @@ func show_post(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprintf(w, err.Error())
 	}
 
-	db, err := sql.Open("mysql", "root:root@tcp(127.0.0.1:3306)/golang")
-	if err != nil {
-		panic(err)
-	}
+	db := dbConn()
 
 	defer db.Close()
 
@@ -196,10 +189,8 @@ func signupPage(w http.ResponseWriter, r *http.Request) {
 		http.ServeFile(w, r, "templates/signup.html")
 		return
 	}
-	db, err := sql.Open("mysql", "root:root@tcp(127.0.0.1:3306)/golang")
-	if err != nil {
-		panic(err)
-	}
+
+	db := dbConn()
 
 	defer db.Close()
 
@@ -239,10 +230,7 @@ func loginPage(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	db, err := sql.Open("mysql", "root:root@tcp(127.0.0.1:3306)/golang")
-	if err != nil {
-		panic(err)
-	}
+	db := dbConn()
 
 	defer db.Close()
 
@@ -265,15 +253,15 @@ func loginPage(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	//t, err := template.ParseFiles("templates/indexU.html", "templates/headerU.html", "templates/footer.html")
-	//
-	//if err != nil {
-	//	fmt.Fprintf(w, err.Error())
-	//}
-	//
-	//t.ExecuteTemplate(w, "indexU", posts)
+	t, err := template.ParseFiles("templates/indexU.html", "templates/headerU.html", "templates/footer.html")
 
-	w.Write([]byte("Hello " + databaseUsername))
+	if err != nil {
+		fmt.Fprintf(w, err.Error())
+	}
+
+	t.ExecuteTemplate(w, "indexU", posts)
+
+	//w.Write([]byte("Hello " + databaseUsername))
 
 }
 
@@ -290,6 +278,7 @@ func handleFunc() {
 	rtr.HandleFunc("/post/{id:[0-9]+}", show_post).Methods("GET")
 	http.Handle("/", rtr)
 	http.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir("./static/"))))
+	log.Println("Server started on: http://localhost:8080")
 	http.ListenAndServe(":8080", nil)
 
 }
