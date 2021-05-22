@@ -19,7 +19,9 @@
     <div class="lert alert-danger">
         <h2>{{.Title}}</h2>
         <p>{{.Anons}}</p>
-        <a href="/post/{{ .Id}}" class="btn btn-danger">Learn more</a>
+        <a href="/post/{{ .Id}}" class="btn btn-danger">View</a>
+        <a href="/edit?id={{ .Id }}" class="btn btn-danger">Edit</a>
+        <a href="/delete?id={{ .Id }}" class="btn btn-danger">Delete</a>
     </div>
 
     {{else }}
@@ -27,8 +29,34 @@
     <p class="lead">None Articles </p>
 
     {{ end }}
+    <a href="/new">NEW</a>
 
 </main>
+<h2> Registered </h2>
+<table border="1">
+    <thead>
+    <tr>
+        <td>ID</td>
+        <td>Name</td>
+        <td>City</td>
+        <td>View</td>
+        <td>Edit</td>
+        <td>Delete</td>
+    </tr>
+    </thead>
+    <tbody>
+    {{ range . }}
+    <tr>
+        <td>{{ .Id }}</td>
+        <td> {{ .Name }} </td>
+        <td>{{ .City }} </td>
+        <td><a href="/show?id={{ .Id }}">View</a></td>
+        <td><a href="/edit?id={{ .Id }}">Edit</a></td>
+        <td><a href="/delete?id={{ .Id }}">Delete</a><td>
+    </tr>
+    {{ end }}
+    </tbody>
+</table>
 
 {{template "footer"}}
 
