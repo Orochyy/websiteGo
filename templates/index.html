@@ -19,17 +19,13 @@
     <div class="lert alert-danger">
         <h2>{{.Title}}</h2>
         <p>{{.Anons}}</p>
-        <a href="/post/{{ .Id}}" class="btn btn-danger">View</a>
+        <a href="/post?id={{ .Id }}" class="btn btn-danger">View</a>
         <a href="/edit?id={{ .Id }}" class="btn btn-danger">Edit</a>
         <a href="/delete?id={{ .Id }}" class="btn btn-danger">Delete</a>
     </div>
 
-    {{else }}
-
-    <p class="lead">None Articles </p>
-
     {{ end }}
-    <a href="/new">NEW</a>
+
 
 </main>
 

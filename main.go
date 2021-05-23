@@ -68,25 +68,6 @@ func index(w http.ResponseWriter, r *http.Request) {
 		posts = append(posts, post)
 	}
 
-	selDB, err := db.Query("SELECT * FROM Employee ORDER BY id DESC")
-	if err != nil {
-		panic(err.Error())
-	}
-	emp := Employee{}
-	resq := []Employee{}
-	for selDB.Next() {
-		var id int
-		var name, city string
-		err = selDB.Scan(&id, &name, &city)
-		if err != nil {
-			panic(err.Error())
-		}
-		emp.Id = id
-		emp.Name = name
-		emp.City = city
-		resq = append(resq, emp)
-	}
-
 	t.ExecuteTemplate(w, "index", posts)
 	defer db.Close()
 }
@@ -156,7 +137,6 @@ func save_article(w http.ResponseWriter, r *http.Request) {
 
 }
 func show_post(w http.ResponseWriter, r *http.Request) {
-	vars := mux.Vars(r)
 
 	t, err := template.ParseFiles("templates/show.html", "templates/header.html", "templates/footer.html")
 
@@ -166,10 +146,10 @@ func show_post(w http.ResponseWriter, r *http.Request) {
 
 	db := dbConn()
 
-	defer db.Close()
+	nId := r.URL.Query().Get("id")
 
 	//виборка даних
-	res, err := db.Query(fmt.Sprintf("SELECT  *   FROM  `articles` WHERE `id` = '%s' ", vars["id"]))
+	res, err := db.Query(fmt.Sprintf("SELECT  *   FROM  `articles` WHERE `id` = '%s' ", nId))
 	if err != nil {
 		panic(err)
 	}
@@ -188,6 +168,7 @@ func show_post(w http.ResponseWriter, r *http.Request) {
 	}
 
 	t.ExecuteTemplate(w, "show", showPost)
+	defer db.Close()
 }
 func ShowE(w http.ResponseWriter, r *http.Request) {
 	db := dbConn()
@@ -310,7 +291,7 @@ func UpdateA(w http.ResponseWriter, r *http.Request) {
 		title := r.FormValue("title")
 		anons := r.FormValue("anons")
 		id := r.FormValue("uid")
-		insForm, err := db.Prepare("UPDATE Employee SET title=?, anons=? WHERE id=?")
+		insForm, err := db.Prepare("UPDATE articles SET title=?, anons=? WHERE id=?")
 		if err != nil {
 			panic(err.Error())
 		}
@@ -318,7 +299,7 @@ func UpdateA(w http.ResponseWriter, r *http.Request) {
 		log.Println("UPDATE: title: " + title + " | anons: " + anons)
 	}
 	defer db.Close()
-	http.Redirect(w, r, "/index2", 301)
+	http.Redirect(w, r, "/", 301)
 }
 func Delete(w http.ResponseWriter, r *http.Request) {
 	db := dbConn()
@@ -474,17 +455,15 @@ func handleFunc() {
 	http.HandleFunc("/new", New)
 	rtr := mux.NewRouter()
 	rtr.HandleFunc("/", index).Methods("GET")
-	rtr.HandleFunc("/index2", index2)
 	rtr.HandleFunc("/delete", DeleteA)
 	rtr.HandleFunc("/update", UpdateA)
-	rtr.HandleFunc("/insert", InsertA)
 	rtr.HandleFunc("/edit", EditA)
 	rtr.HandleFunc("/create", create).Methods("GET")
 	rtr.HandleFunc("/contacts", contacts).Methods("GET")
 	rtr.HandleFunc("/contacts", send).Methods("POST")
 	rtr.HandleFunc("/confirmation", confirmation).Methods("GET")
 	rtr.HandleFunc("/save_article", save_article).Methods("POST")
-	rtr.HandleFunc("/post/{id:[0-9]+}", show_post).Methods("GET")
+	rtr.HandleFunc("/post", show_post).Methods("GET")
 	http.Handle("/", rtr)
 	http.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir("./static/"))))
 	log.Println("Server started on: http://localhost:8080")
