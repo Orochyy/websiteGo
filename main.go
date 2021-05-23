@@ -189,7 +189,7 @@ func show_post(w http.ResponseWriter, r *http.Request) {
 
 	t.ExecuteTemplate(w, "show", showPost)
 }
-func Show(w http.ResponseWriter, r *http.Request) {
+func ShowE(w http.ResponseWriter, r *http.Request) {
 	db := dbConn()
 	nId := r.URL.Query().Get("id")
 	selDB, err := db.Query("SELECT * FROM Employee WHERE id=?", nId)
@@ -213,7 +213,6 @@ func Show(w http.ResponseWriter, r *http.Request) {
 }
 func New(w http.ResponseWriter, r *http.Request) {
 	tmpl.ExecuteTemplate(w, "new", nil)
-
 }
 func Edit(w http.ResponseWriter, r *http.Request) {
 	db := dbConn()
@@ -237,6 +236,28 @@ func Edit(w http.ResponseWriter, r *http.Request) {
 	tmpl.ExecuteTemplate(w, "edit", emp)
 	defer db.Close()
 }
+func EditA(w http.ResponseWriter, r *http.Request) {
+	db := dbConn()
+	nId := r.URL.Query().Get("id")
+	selDB, err := db.Query("SELECT * FROM articles WHERE id=?", nId)
+	if err != nil {
+		panic(err.Error())
+	}
+	art := Article{}
+	for selDB.Next() {
+		var id uint16
+		var title, anons string
+		err = selDB.Scan(&id, &title, &anons)
+		if err != nil {
+			panic(err.Error())
+		}
+		art.Id = id
+		art.Title = title
+		art.Anons = anons
+	}
+	tmpl.ExecuteTemplate(w, "edit", art)
+	defer db.Close()
+}
 func Insert(w http.ResponseWriter, r *http.Request) {
 	db := dbConn()
 	if r.Method == "POST" {
@@ -248,6 +269,21 @@ func Insert(w http.ResponseWriter, r *http.Request) {
 		}
 		insForm.Exec(name, city)
 		log.Println("INSERT: Name: " + name + " | City: " + city)
+	}
+	defer db.Close()
+	http.Redirect(w, r, "/index2", 301)
+}
+func InsertA(w http.ResponseWriter, r *http.Request) {
+	db := dbConn()
+	if r.Method == "POST" {
+		title := r.FormValue("title")
+		anons := r.FormValue("anons")
+		insForm, err := db.Prepare("INSERT INTO Employee(title, anons) VALUES(?,?)")
+		if err != nil {
+			panic(err.Error())
+		}
+		insForm.Exec(title, anons)
+		log.Println("INSERT: Title: " + title + " | Anons: " + anons)
 	}
 	defer db.Close()
 	http.Redirect(w, r, "/index2", 301)
@@ -268,6 +304,22 @@ func Update(w http.ResponseWriter, r *http.Request) {
 	defer db.Close()
 	http.Redirect(w, r, "/index2", 301)
 }
+func UpdateA(w http.ResponseWriter, r *http.Request) {
+	db := dbConn()
+	if r.Method == "POST" {
+		title := r.FormValue("title")
+		anons := r.FormValue("anons")
+		id := r.FormValue("uid")
+		insForm, err := db.Prepare("UPDATE Employee SET title=?, anons=? WHERE id=?")
+		if err != nil {
+			panic(err.Error())
+		}
+		insForm.Exec(title, anons, id)
+		log.Println("UPDATE: title: " + title + " | anons: " + anons)
+	}
+	defer db.Close()
+	http.Redirect(w, r, "/index2", 301)
+}
 func Delete(w http.ResponseWriter, r *http.Request) {
 	db := dbConn()
 	emp := r.URL.Query().Get("id")
@@ -279,6 +331,18 @@ func Delete(w http.ResponseWriter, r *http.Request) {
 	log.Println("DELETE")
 	defer db.Close()
 	http.Redirect(w, r, "/index2", 301)
+}
+func DeleteA(w http.ResponseWriter, r *http.Request) {
+	db := dbConn()
+	art := r.URL.Query().Get("id")
+	delForm, err := db.Prepare("DELETE FROM articles WHERE id=?")
+	if err != nil {
+		panic(err.Error())
+	}
+	delForm.Exec(art)
+	log.Println("DELETE")
+	defer db.Close()
+	http.Redirect(w, r, "/", 301)
 }
 func send(w http.ResponseWriter, r *http.Request) {
 	// Step 1: Validate form
@@ -406,12 +470,12 @@ func loginPage(w http.ResponseWriter, r *http.Request) {
 func handleFunc() {
 	http.HandleFunc("/signup", signupPage)
 	http.HandleFunc("/login", loginPage)
-	http.HandleFunc("/show", Show)
+	http.HandleFunc("/show", ShowE)
 	http.HandleFunc("/new", New)
-	http.HandleFunc("/edit", Edit)
-	http.HandleFunc("/insert", Insert)
-	http.HandleFunc("/update", Update)
-	http.HandleFunc("/delete", Delete)
+	http.HandleFunc("/edit", EditA)
+	http.HandleFunc("/insert", InsertA)
+	http.HandleFunc("/update", UpdateA)
+	http.HandleFunc("/delete", DeleteA)
 	http.HandleFunc("/index2", index2)
 	rtr := mux.NewRouter()
 	rtr.HandleFunc("/", index).Methods("GET")
