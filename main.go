@@ -218,7 +218,15 @@ func Edit(w http.ResponseWriter, r *http.Request) {
 	defer db.Close()
 }
 func EditA(w http.ResponseWriter, r *http.Request) {
+
+	t, err := template.ParseFiles("templates/edit.html", "templates/header.html", "templates/footer.html")
+
+	if err != nil {
+		fmt.Fprintf(w, err.Error())
+	}
+
 	db := dbConn()
+
 	nId := r.URL.Query().Get("id")
 	selDB, err := db.Query("SELECT * FROM articles WHERE id=?", nId)
 	if err != nil {
@@ -227,16 +235,17 @@ func EditA(w http.ResponseWriter, r *http.Request) {
 	art := Article{}
 	for selDB.Next() {
 		var id uint16
-		var title, anons string
-		err = selDB.Scan(&id, &title, &anons)
+		var title, anons, full_text string
+		err = selDB.Scan(&id, &title, &anons, &full_text)
 		if err != nil {
 			panic(err.Error())
 		}
 		art.Id = id
 		art.Title = title
 		art.Anons = anons
+		art.FullText = full_text
 	}
-	tmpl.ExecuteTemplate(w, "edit", art)
+	t.ExecuteTemplate(w, "edit", art)
 	defer db.Close()
 }
 func Insert(w http.ResponseWriter, r *http.Request) {
@@ -290,6 +299,7 @@ func UpdateA(w http.ResponseWriter, r *http.Request) {
 	if r.Method == "POST" {
 		title := r.FormValue("title")
 		anons := r.FormValue("anons")
+
 		id := r.FormValue("uid")
 		insForm, err := db.Prepare("UPDATE articles SET title=?, anons=? WHERE id=?")
 		if err != nil {
