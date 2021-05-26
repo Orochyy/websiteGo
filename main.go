@@ -461,8 +461,6 @@ func loginPage(w http.ResponseWriter, r *http.Request) {
 func handleFunc() {
 	http.HandleFunc("/signup", signupPage)
 	http.HandleFunc("/login", loginPage)
-	http.HandleFunc("/show", ShowE)
-	http.HandleFunc("/new", New)
 	rtr := mux.NewRouter()
 	rtr.HandleFunc("/", index).Methods("GET")
 	rtr.HandleFunc("/delete", DeleteA)
