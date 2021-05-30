@@ -2,14 +2,21 @@ package main
 
 import (
 	"database/sql"
+	"encoding/json"
 	"fmt"
 	_ "github.com/go-sql-driver/mysql"
 	mux "github.com/gorilla/websocket"
 	"golang.org/x/crypto/bcrypt"
 	"html/template"
+	"io/ioutil"
 	"log"
 	"net/http"
 )
+
+type Mess struct {
+	name string `json:"name"`
+	desc string `json:"desc"`
+}
 
 type Article struct {
 	Id                     uint16
@@ -21,6 +28,16 @@ type Employee struct {
 	City string
 }
 
+type Articleq struct {
+	Id      string `json:"Id"`
+	Title   string `json:"Title"`
+	Desc    string `json:"desc"`
+	Content string `json:"content"`
+}
+
+var Articles []Articleq
+
+var mess []Mess
 var tmpl = template.Must(template.ParseGlob("templates/*"))
 var posts = []Article{}
 var showPost = Article{}
@@ -351,7 +368,34 @@ func loginPage(w http.ResponseWriter, r *http.Request) {
 	//w.Write([]byte("Hello " + databaseUsername))
 
 }
+func getArticles(w http.ResponseWriter, r *http.Request) {
+	t, err := template.ParseFiles("templates/art.html", "templates/header.html", "templates/footer.html")
 
+	if err != nil {
+		fmt.Fprintf(w, err.Error())
+	}
+
+	resp, err := http.Get("http://192.168.1.6/api/articles")
+	if err != nil {
+		log.Fatalln(err)
+	}
+	//We Read the response body on the line below.
+	body, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		log.Fatalln(err)
+	}
+	//Convert the body to type string
+	sb := string(body)
+	log.Printf(sb)
+	t.ExecuteTemplate(w, "art", posts)
+}
+func vlaDick(w http.ResponseWriter, r *http.Request) {
+
+	fmt.Println("Endpoint Hit: returnAllArticles")
+	json.NewEncoder(w).Encode(Articles)
+	fmt.Sprintf("hyi")
+
+}
 func handleFunc() {
 	http.HandleFunc("/signup", signupPage)
 	http.HandleFunc("/login", loginPage)
@@ -361,18 +405,30 @@ func handleFunc() {
 	rtr.HandleFunc("/update", UpdateA)
 	rtr.HandleFunc("/edit", EditA)
 	rtr.HandleFunc("/create", create).Methods("GET")
+	rtr.HandleFunc("/art", getArticles).Methods("GET")
 	rtr.HandleFunc("/contacts", contacts).Methods("GET")
 	rtr.HandleFunc("/contacts", send).Methods("POST")
 	rtr.HandleFunc("/confirmation", confirmation).Methods("GET")
 	rtr.HandleFunc("/save_article", save_article).Methods("POST")
 	rtr.HandleFunc("/post", show_post).Methods("GET")
+	rtr.HandleFunc("/dick", vlaDick).Methods("GET")
 	http.Handle("/", rtr)
 	http.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir("./static/"))))
 	log.Println("Server started on: http://localhost:8080")
-	http.ListenAndServe(":8080", nil)
+	http.ListenAndServe("192.168.1.9:80", nil)
 
 }
 
 func main() {
 	handleFunc()
+
+	mess = []Mess{
+		Mess{name: "vlaDick", desc: "loh"},
+	}
+	Articles = []Articleq{
+		Articleq{Id: "1", Title: "Hello", Desc: "Article Description", Content: "Article Content"},
+		Articleq{Id: "2", Title: "Hello 2", Desc: "Article Description", Content: "Article Content"},
+		Articleq{Id: "3", Title: "Hello 3", Desc: "Article Description", Content: "Article Content"},
+	}
+
 }
