@@ -13,9 +13,15 @@ import (
 	"net/http"
 )
 
+//type Mess struct {
+//	name string `json:"name"`
+//	desc string `json:"desc"`
+//}
+
 type Mess struct {
-	name string `json:"name"`
-	desc string `json:"desc"`
+	Id    string `json:"Id"`
+	Title string `json:"Title"`
+	Desc  string `json:"desc"`
 }
 
 type Article struct {
@@ -392,8 +398,7 @@ func getArticles(w http.ResponseWriter, r *http.Request) {
 func vlaDick(w http.ResponseWriter, r *http.Request) {
 
 	fmt.Println("Endpoint Hit: returnAllArticles")
-	json.NewEncoder(w).Encode(Articles)
-	fmt.Sprintf("hyi")
+	json.NewEncoder(w).Encode(mess)
 
 }
 func handleFunc() {
@@ -420,15 +425,10 @@ func handleFunc() {
 }
 
 func main() {
-	handleFunc()
-
 	mess = []Mess{
-		Mess{name: "vlaDick", desc: "loh"},
+		Mess{Id: "VlaDick", Title: "loh", Desc: "double loh^^ kek "},
 	}
-	Articles = []Articleq{
-		Articleq{Id: "1", Title: "Hello", Desc: "Article Description", Content: "Article Content"},
-		Articleq{Id: "2", Title: "Hello 2", Desc: "Article Description", Content: "Article Content"},
-		Articleq{Id: "3", Title: "Hello 3", Desc: "Article Description", Content: "Article Content"},
-	}
+
+	handleFunc()
 
 }
