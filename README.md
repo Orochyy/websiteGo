@@ -39,7 +39,7 @@ go run main.go
 
 ##Load the following URL
 ```go
-http://localhost:8080/
+192.168.1.9:80
 ```
 
 
