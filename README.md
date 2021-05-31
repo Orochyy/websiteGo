@@ -23,6 +23,25 @@ CREATE TABLE users(
 );
 ```
 
+##Go get required packages
+
+```gitexclude
+go get golang.org/x/crypto/bcrypt
+
+go get github.com/go-sql-driver/mysql
+```
+
+##Run the following command
+
+```go
+go run main.go
+```
+
+##Load the following URL
+```go
+http://localhost:8080/
+```
+
 
 
 
