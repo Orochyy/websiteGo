@@ -1,6 +1,8 @@
 package main
 
-import "fmt"
+import (
+	"fmt"
+)
 
 //func slices() {
 //	slice1 := []int{1, 2, 3}
@@ -87,8 +89,36 @@ func slice() {
 	for _, value := range users {
 		fmt.Println(value)
 	}
+}
+
+func MinAndMux(x []int) (min int, max int) {
+
+	min = x[0]
+	max = x[0]
+
+	for _, value := range x {
+		if value < min {
+			min = value
+		}
+		if value > max {
+			max = value
+		}
+	}
+	return min, max
 
 }
 func main() {
-	slice()
+	x := []int{
+		48, 96, 86, 68,
+		57, 82, 63, 70,
+		37, 34, 83, 27,
+		19, 97, 9, 17,
+	}
+
+	min, max := MinAndMux(x)
+
+	fmt.Println("Min:", min)
+	fmt.Println("Max:", max)
+
+	//slice()
 }
