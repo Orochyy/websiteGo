@@ -2,6 +2,8 @@ package main
 
 import (
 	"fmt"
+	"sort"
+	"strings"
 )
 
 //func slices() {
@@ -107,10 +109,45 @@ func MinAndMux(x []int) (min int, max int) {
 	return min, max
 
 }
+
+var listOfStrings = []string{
+	"mars bar",
+	"milk-duds",
+	"awdvawvdawvd23",
+	"Mars bar",
+	"milk",
+	"milky-way",
+	"Milk",
+	"Milky-way",
+	"qilawvdvawway",
+	"mars",
+	"wavdwavd",
+}
+
+type Alphabetic []string
+
+func (list Alphabetic) Len() int {
+	return len(list)
+}
+
+func (list Alphabetic) Swap(i, j int) {
+	list[i], list[j] = list[j], list[i]
+}
+
+func (list Alphabetic) Less(i, j int) bool {
+	var si = list[i]
+	var sj = list[j]
+	var si_lower = strings.ToLower(si)
+	var sj_lower = strings.ToLower(sj)
+	if si_lower == sj_lower {
+		return si < sj
+	}
+	return si_lower < sj_lower
+}
 func main() {
 	x := []int{
 		48, 96, 86, 68,
-		57, 82, 63, 70,
+		57, -82, 63, 70,
 		37, 34, 83, 27,
 		19, 97, 9, 17,
 	}
@@ -121,4 +158,15 @@ func main() {
 	fmt.Println("Max:", max)
 
 	//slice()
+
+	sort.Sort(Alphabetic(listOfStrings))
+	fmt.Println()
+	fmt.Println("SORTED ALPHABETICALLY")
+	printStrings(listOfStrings)
+}
+
+func printStrings(slice []string) {
+	for i := 0; i < len(slice); i++ {
+		fmt.Println(slice[i])
+	}
 }
