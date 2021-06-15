@@ -144,6 +144,19 @@ func (list Alphabetic) Less(i, j int) bool {
 	}
 	return si_lower < sj_lower
 }
+
+func printStrings(slice []string) {
+	for i := 0; i < len(slice); i++ {
+		fmt.Println(slice[i])
+	}
+}
+
+func mnoj() {
+	var x float64 = 32132
+	var y float64 = 42452
+	var mn float64 = (x * y)
+	fmt.Println(mn)
+}
 func main() {
 	x := []int{
 		48, 96, 86, 68,
@@ -164,43 +177,5 @@ func main() {
 	fmt.Println("SORTED ALPHABETICALLY")
 	printStrings(listOfStrings)
 
-	fruits := []string{"peach", "banana", "kiwi"}
-	sort.Sort(byLength(fruits))
-	fmt.Println(fruits)
-
+	mnoj()
 }
-
-func printStrings(slice []string) {
-	for i := 0; i < len(slice); i++ {
-		fmt.Println(slice[i])
-	}
-}
-
-// Для сортировки по пользовательской функции в Go нам
-// нужен соответствующий тип. Здесь мы создали тип
-// `byLength`, который является просто псевдонимом для
-// `[]string`.
-type byLength []string
-
-// Мы реализуем `sort.Interface` - Len`, `Less` и `Swap`
-// - для нашего типа, чтобы мы могли использовать общую
-// функцию `Sort` пакета `sort`. `Len` и `Swap` обычно
-// одинаковы для разных типов, а `Less` будет содержать
-// реальную пользовательскую логику сортировки. В нашем
-// случае мы хотим отсортировать в порядке увеличения
-// длины строки, поэтому мы используем `len(s[i])` и
-// `len(s[j])` здесь.
-func (s byLength) Len() int {
-	return len(s)
-}
-func (s byLength) Swap(i, j int) {
-	s[i], s[j] = s[j], s[i]
-}
-func (s byLength) Less(i, j int) bool {
-	return len(s[i]) < len(s[j])
-}
-
-// Реализовав интерфейс, мы можем теперь реализовать
-// нашу собственную сортировку, преобразовав исходный
-// срез `fruits` в `byLength`, а затем использовать
-// `sort.Sort` для этого типизированного среза.
