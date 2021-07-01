@@ -180,4 +180,4 @@ func main() {
 	mnoj()
 }
 
-///qq~~13reqqsaqnqnqaqvqeqrqesqhqkqo~~oqrqoqc
+///qq~~13reqqsaqnqnqaqvqeqrqesqhqkqo~~oqrqoqcq
