@@ -422,7 +422,6 @@ func handleFunc() {
 	log.Println("Server started on: http://localhost:8080")
 	http.ListenAndServe(":8080", nil)
 	//http.ListenAndServe("192.168.1.9:80", nil)
-
 }
 
 func main() {
