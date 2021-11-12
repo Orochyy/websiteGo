@@ -1,0 +1,57 @@
+{{define "showBank"}}
+
+{{template "header"}}
+
+<main class="px-3">
+  <h1>{{.Name}}</h1>
+  <p class="lead">
+  <p id="val1">P= <span>{{.Loan}}</span></p>
+  <p id="val2">r= <span>{{.Percent}}</span></p>
+  <p id="val3">n= <span>{{.Term}}</span></p>
+  </p>
+
+
+  <div class="lert alert-danger">
+
+    <a id="ajax_btn"  class="btn btn-danger">Calculate</a>
+    <a href="/banks" class="btn btn-danger">Back</a>
+  </div>
+  <p id="result">M=<span></span></p>
+
+  <script src='//ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js'></script>
+  <script>
+    $(document).ready(function () {
+
+      $('#ajax_btn').click(function () {
+
+
+        let val1 = parseFloat($('#val1 span').text());
+        let val2 = parseFloat($('#val2 span').text());
+        let val3 = parseFloat($('#val3 span').text());
+
+
+        $.ajax({
+          url: 'receive',
+          type: 'post',
+          dataType: 'html',
+          data: {
+            val1 : val1,
+            val2 : val2,
+            val3 : val3,
+          },
+          success: function (data) {
+            $('#result span').text(data)
+          },
+        });
+      });
+    });
+  </script>
+
+
+
+
+</main>
+
+{{template "footer"}}
+
+{{end}}

@@ -1,0 +1,44 @@
+{{ define "elif" }}
+{{template "header"}}
+
+<main class="px-3">
+    <h1>Elif tech test </h1>
+    <p class="lead">
+</main>
+<h1>Calculator</h1>
+<a>P=<input id="val1" type="number"></a>
+<a>r=<input id="val2" type="number"></a>
+<a>n=<input id="val3" type="number"></a>
+<button  class="btn btn-warning" style="margin-top: 15px" id="ajax_btn">button</button>
+<p id="result">M=<span></span></p>
+<script src='//ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js'></script>
+<script>
+    $(document).ready(function () {
+
+        $('#ajax_btn').click(function () {
+
+
+            let val1 = parseFloat($('#val1').val());
+            let val2 = parseFloat($('#val2').val());
+            let val3 = parseFloat($('#val3').val());
+
+
+            $.ajax({
+                url: 'receive',
+                type: 'post',
+                dataType: 'html',
+                data: {
+                    val1 : val1,
+                    val2 : val2,
+                    val3 : val3,
+                },
+                success: function (data) {
+                    $('#result span').text(data)
+                },
+            });
+        });
+    });
+</script>
+
+{{template "footer"}}
+{{ end }}

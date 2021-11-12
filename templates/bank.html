@@ -1,0 +1,36 @@
+{{define "bank"}}
+
+{{template "header"}}
+
+<main class="px-3">
+    <h1>Cover your page.</h1>
+    <p class="lead">
+    <p>Lorem Ipsum is simply dummy text of
+        the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since
+        the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It
+        has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially
+        unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum
+        passages, and more recently with desktop publishing software like Aldus PageMaker including versions of
+        Lorem Ipsumq.</p>
+    </p>
+
+    {{ range . }}
+
+    <div class="lert alert-danger">
+        <h2 style="margin-top: 20px;padding-top: 20px">{{.Name}}</h2>
+        <div class=""style="margin-top: 20px;padding-bottom: 20px">
+            <a href="/bank?id={{ .Id }}" class="btn btn-danger">View</a>
+            <a href="/editBank?id={{ .Id }}" class="btn btn-danger">Edit</a>
+            <a href="/deleteBank?id={{ .Id }}" class="btn btn-danger">Delete</a>
+            <a href="/calculateBank?id={{ .Id }}" class="btn btn-danger">Calculate</a>
+        </div>
+    </div>
+
+    {{ end }}
+
+
+</main>
+
+{{template "footer"}}
+
+{{end}}
