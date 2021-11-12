@@ -1,0 +1,15 @@
+{{ define "editBank" }}
+{{template "header"}}
+
+<h2>Edit Bank</h2>
+<form method="POST" action="updateBank">
+  <input type="hidden" name="uid" value="{{ .Id }}" />
+  <label> Name </label><input type="text" name="name" value="{{ .Name }}"  /><br />
+  <label> Loan </label><input type="text" name="loan" value="{{ .Loan }}"  /><br />
+  <label> Percent </label><input type="text" name="percent" value="{{ .Percent }}"  /><br />
+  <label> Term </label><input type="text" name="term" value="{{ .Term }}"  /><br />
+  <input type="submit" value="Save Bank" />
+</form><br />
+
+{{template "footer"}}
+{{ end }}
