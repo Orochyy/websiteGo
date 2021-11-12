@@ -5,11 +5,7 @@
 <main class="px-3">
   <h1>{{.Name}}</h1>
   <p class="lead">
-<<<<<<< HEAD
     <textarea name="loan" id="val1" cols="5" rows="3" class="form-control" placeholder="amount borrowed"></textarea>
-=======
-  <p id="val1">P= <span>{{.Loan}}</span></p>
->>>>>>> origin/main
   <p id="val2">r= <span>{{.Percent}}</span></p>
   <p id="val3">n= <span>{{.Term}}</span></p>
   </p>
@@ -18,15 +14,9 @@
   <div class="lert alert-danger">
 
     <a id="ajax_btn"  class="btn btn-danger">Calculate</a>
-<<<<<<< HEAD
     <a href="/banks" onclick="return validateForm()" class="btn btn-danger">Back</a>
   </div>
   <p id="result" style="margin-top: 15px">M=<span></span></p>
-=======
-    <a href="/banks" class="btn btn-danger">Back</a>
-  </div>
-  <p id="result">M=<span></span></p>
->>>>>>> origin/main
 
   <script src='//ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js'></script>
   <script>
@@ -35,11 +25,7 @@
       $('#ajax_btn').click(function () {
 
 
-<<<<<<< HEAD
         let val1 = parseFloat($('#val1').val());
-=======
-        let val1 = parseFloat($('#val1 span').text());
->>>>>>> origin/main
         let val2 = parseFloat($('#val2 span').text());
         let val3 = parseFloat($('#val3 span').text());
 
@@ -59,7 +45,6 @@
         });
       });
     });
-<<<<<<< HEAD
 
     function validateForm()
     {
@@ -70,8 +55,6 @@
         alert("Please only enter numeric characters only for your Age! (Allowed input:0-9)")
       }
     }
-=======
->>>>>>> origin/main
   </script>
 
 
